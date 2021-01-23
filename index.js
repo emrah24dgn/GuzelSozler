@@ -14,13 +14,11 @@ const guzelSozSema = {
   icerik : String
 };
 const GuzelSoz = mongoose.model("GuzelSoz", guzelSozSema);
-
-app.get("/", function(req,res){
+app.get("/", function(req, res){
   GuzelSoz.find({}, function(err, gelenSozler){
     res.render("anasayfa", {sozler : gelenSozler});
   });
 });
-
 app.route("/api/guzelsoz/:id")
     .get(function(req, res){
       GuzelSoz.findOne({_id : req.params.id} , function(err, gelenVeri){
@@ -32,7 +30,7 @@ app.route("/api/guzelsoz/:id")
       var icerikGelen   = req.body.icerik;
       GuzelSoz.update({_id : req.params.id} , {kategori : kategoriGelen, icerik : icerikGelen}, {overwrite: true}, function(err){
         if(!err)
-          res.send("Kayıt başarıyla güncellendi.");
+          res.send({sonuc : "Kayıt başarıyla güncellendi."});
         else
           res.send(err);
       });
@@ -40,18 +38,23 @@ app.route("/api/guzelsoz/:id")
     .patch(function(req, res){
       GuzelSoz.update({_id : req.params.id} , {$set : req.body}, function(err){
         if(!err)
-          res.send("Kayıt başarıyla güncellendi.");
+          res.send({sonuc : "Kayıt başarıyla güncellendi."});
         else
           res.send(err);
       })
     })
     .delete(function(req, res){
-      GuzelSoz.deleteOne({_id : req.params.id}, function(err){
-        if(!err)
-          res.send("Kayıt başarıyla silindi.");
-        else
-          res.send(err);
-      })
+      var sifre = req.body.sifre;
+      if(sifre == "parola1234"){
+        GuzelSoz.deleteOne({_id : req.params.id}, function(err){
+          if(!err)
+            res.send({sonuc : "Kayıt başarıyla silindi."});
+          else
+            res.send(err);
+        })
+      }else{
+        res.send({sonuc : "Şifre hatalı."});
+      }
     });
 app.route("/api/guzelsozler")
     .get(function(req, res){
@@ -69,23 +72,28 @@ app.route("/api/guzelsozler")
        });
        guzelSoz.save(function(err){
           if(!err)
-            res.send("Kayıt başarıyla oluşturuldu.");
+            res.send( {sonuc : "Kayıt başarıyla oluşturuldu."} );
           else
             res.send(err);
        });
     })
     .delete(function(req, res){
-      GuzelSoz.deleteMany({}, function(err){
-        if(!err)
-          res.send("Tüm kayıtlar başarıyla silindi.");
-        else
-          res.send(err);
-      });
+      var sifre = req.body.sifre;
+      if(sifre == "parola1234"){
+        GuzelSoz.deleteMany({}, function(err){
+          if(!err)
+            res.send( {sonuc : "Tüm kayıtlar başarıyla silindi."} );
+          else
+            res.send(err);
+        });
+      }else{
+        res.send({sonuc : "Şifre hatalı."});
+      }
     });
-    let port = process.env.PORT;
-    if(port == "" || port == null){
-      port = 5000;
-    }
-    app.listen(port, function(){
-      console.log("port : " + port);
-    });
+let port = process.env.PORT;
+if(port == "" || port == null){
+  port = 5000;
+}
+app.listen(port, function(){
+  console.log("port numarasi : " + port);
+});
